@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const serverBaseURL = "http://chat-app-chat-app.apps.123.252.203.195.nip.io/"
+export const serverBaseURL = `http://chat-app-chat-app.apps.123.252.203.195.nip.io`
 
 export function setTokenHeader(token) {
   if (token) {
