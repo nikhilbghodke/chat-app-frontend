@@ -1,66 +1,153 @@
 import React from 'react';
-import TextField from '@material-ui/core/TextField';
-import MessageList from './messageList';
 import { connect } from 'react-redux';
+import Prism from 'prismjs'
 
-import { addNewMessage, changeSelectedChannel } from '../../../store/actions/chatActions';
+import fileSelectModel from './fileSelectModal';
+import CodeSnippetModel from './codeSnippetModal';
+import NewMessageComponent from './newMessage';
+import MessageList from './messageList';
+import { addNewMessage, uploadFile } from '../../../store/actions/chatActions';
+import FileSelectModal from './fileSelectModal';
+
 
 class ChatBox extends React.Component {
     state = {
-        message: ""
+        message: "",
+        filePopUpOpen: false,
+        codePopUpOpen: false,
     }
+
+    componentDidMount() {
+        Prism.highlightAll();
+    }
+
+
+    toggleFilePopUp = () => {
+        this.setState(prevState => {
+            return {
+                ...prevState,
+                filePopUpOpen: !prevState.filePopUpOpen
+            }
+        })
+    }
+
+    toggleCodePopUp = () => {
+        this.setState(prevState => {
+            return {
+                ...prevState,
+                codePopUpOpen: !prevState.codePopUpOpen
+            }
+        })
+    }
+
+
     handleNewMessageChange = (event) => {
         this.setState({
             message: event.target.value
         })
     }
 
-    addNewMessage = () => {
-        // const room = "Discussion";
-        // const channel = props.roomDetails.channels[0].title;
-        // const token = props.token;
-        // const type="text";
-
-        // const messageObject = {
-        //     room,
-        //     channel,
-        //     type,
-        //     token,
-        //     message
-        // }
-
-        // var packet = {room, channel, message, token, type};
-
-        // console.log(props)
-
-        // this.setmessageList({ user: "User A", message: this.state.message })
-        if (this.state.message.length === 0) 
-            return;
-        
-        const message = {
-            message: this.state.message,
-            user: "User A"
+    sendLocation = (locationMessageString) => {
+        const message = {   // For the store
+            content: locationMessageString,
+            owner: { username: this.props.currentUser },
+            createdAt: new Date(Date.now()).toISOString(),
+            type: "location"
         }
         let nameOfConversation = "";
+        // Send the message through socket
         if (this.props.currentConversation[0] === "channels") {
-            console.log("HI")
             nameOfConversation = this.props.currentConversation[1].name
+            this.props.sendMessage(locationMessageString, nameOfConversation, true, "location")
         } else {
-            nameOfConversation = this.props.currentConversation[1].otherUserName
+            nameOfConversation = this.props.currentConversation[1].name
+            this.props.sendMessage(locationMessageString, nameOfConversation, false, "location")
+        }
+        this.props.addNewMessage(message, this.props.currentConversation[0], nameOfConversation)
+    }
+
+    addNewMessage = () => {
+        if (this.state.message.length === 0)
+            return;
+        const message = {
+            content: this.state.message,
+            owner: { username: this.props.currentUser },
+            createdAt: new Date(Date.now()).toISOString(),
+            type: "text"
+        }
+        let nameOfConversation = "";
+        // Send the message through socket
+        if (this.props.currentConversation[0] === "channels") {
+            nameOfConversation = this.props.currentConversation[1].name
+            this.props.sendMessage(this.state.message, nameOfConversation, true, "text")
+        } else {
+            nameOfConversation = this.props.currentConversation[1].name
+            this.props.sendMessage(this.state.message, nameOfConversation, false, "text")
         }
         this.props.addNewMessage(message, this.props.currentConversation[0], nameOfConversation)
         this.setState({
             message: ""
         })
+
     }
+
+
+    sendCode = (language, code) => {
+        this.toggleCodePopUp();
+        console.log(language)
+        console.log(code)
+
+        if (code.length === 0 || language.length === 0)
+            return;
+        const message = {
+            content: code,
+            owner: { username: this.props.currentUser },
+            createdAt: new Date(Date.now()).toISOString(),
+            type: `code/${language}`,
+        }
+        let nameOfConversation = "";
+        // Send the message through socket
+        if (this.props.currentConversation[0] === 'channels') {
+            nameOfConversation = this.props.currentConversation[1].name
+            this.props.sendMessage(code, nameOfConversation, true, `code/${language}`)
+        } else {
+            nameOfConversation = this.props.currentConversation[1].name
+            this.props.sendMessage(code, nameOfConversation, false, `code/${language}`)
+        }
+        this.props.addNewMessage(message, this.props.currentConversation[0], nameOfConversation)
+        this.render();
+        this.setState({
+            message: ""
+        })
+        Prism.highlightAll();
+    }
+
+    sendFile = (file) => {
+        console.log("SEND FILE")
+        console.log(file)
+        this.props.uploadFile(file, file.name, (fileAddress) => {
+            console.log(fileAddress)
+            const message = {   // For the store
+                content: fileAddress,
+                owner: { username: this.props.currentUser },
+                createdAt: new Date(Date.now()).toISOString(),
+                type: "file/" + file.name
+            }
+            let nameOfConversation = "";
+            // Send the message through socket
+            if (this.props.currentConversation[0] === "channels") {
+                nameOfConversation = this.props.currentConversation[1].name
+                this.props.sendMessage(fileAddress, nameOfConversation, true, "file/" + file.name)
+            } else {
+                nameOfConversation = this.props.currentConversation[1].name
+                this.props.sendMessage(fileAddress, nameOfConversation, false, "file/" + file.name)
+            }
+            this.props.addNewMessage(message, this.props.currentConversation[0], nameOfConversation)
+        })
+    }
+
     render() {
         // console.log(this.props)
-
-        // const [messageList, setmessageList] = useState(props.currentChannel.messages);
-        // console.log(messageList)
-        // const [message, setMessage] = useState("");
-        // let message = "";
-
         let title = "";
         let description = null;
         let isPersonal = "";
@@ -73,9 +160,11 @@ class ChatBox extends React.Component {
             isPersonal = false;
         } else {
             conversation = this.props.currentConversation[1];
-            title = conversation.otherUserName;
+            title = conversation.name;
             isPersonal = true;
         }
+
+        // console.log(this.props)
 
         return (
             <div className="chat-area-border">
@@ -91,28 +180,17 @@ class ChatBox extends React.Component {
                     <MessageList currentUser={this.props.currentUser} messageList={conversation.messages} />
                 </div>
                 <div className="new-message">
-                    <div className="message-options">
-                        Attach
+                    <NewMessageComponent
+                        currentMessage={this.state.message}
+                        messageOnChange={this.handleNewMessageChange}
+                        sendOnClick={this.addNewMessage}
+                        sendLocation={this.sendLocation}
+                        toggleCodePopUp={this.toggleCodePopUp}
+                        toggleFilePopUp={this.toggleFilePopUp}
+                    />
                 </div>
-                    <div className="message-text">
-                        <TextField
-                            name="new-message"
-                            placeholder="New Message"
-                            id="new-message-text-field"
-                            variant="outlined"
-                            multiline
-                            value={this.state.message}
-                            // rows={2}
-                            onChange={this.handleNewMessageChange}
-                        >
-
-                        </TextField>
-                    </div>
-                    <button className="send-button" onClick={this.addNewMessage}>
-                        Send
-                </button>
-                </div>
-
+                <FileSelectModal filePopUpOpen={this.state.filePopUpOpen} toggleFilePopUp={this.toggleFilePopUp} sendFile={this.sendFile} />
+                <CodeSnippetModel codePopUpOpen={this.state.codePopUpOpen} toggleCodePopUp={this.toggleCodePopUp} sendCode={this.sendCode} />
             </div>
         )
     }
@@ -120,14 +198,14 @@ class ChatBox extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        currentUser: state.chatReducer.currentUser
+        currentUser: state.currentUser.user.username
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        addNewMessage: (message, typeOfConversation, conversationName) => {dispatch(addNewMessage(message, typeOfConversation, conversationName))},
-        changeSelectedChannel: (channelIndex) => {dispatch(changeSelectedChannel(channelIndex))}
+        addNewMessage: (message, typeOfConversation, conversationName) => { dispatch(addNewMessage(message, typeOfConversation, conversationName)) },
+        uploadFile: (file, fileName, callback) => { dispatch(uploadFile(file, fileName, callback)) }
     }
 }
 

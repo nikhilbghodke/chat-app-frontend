@@ -22,7 +22,8 @@ class UserSignIn extends Component {
                     this.props.history.push("/rooms");
                 }
             })
-            .catch(() => {
+            .catch((error) => {
+                alert(error);
                 return;
             });
     };
@@ -32,6 +33,7 @@ class UserSignIn extends Component {
         })
     }
     render() {
+        
         const { errors, removeError,history} = this.props;
         history.listen(() => {
             removeError();
@@ -44,7 +46,7 @@ class UserSignIn extends Component {
                 <p className="form-subtitle">
                     Enter your email ID password
             </p>
-            <form className="formclass" onSubmit={this.handleSubmit}>
+            <form className="formclass form-group" onSubmit={this.handleSubmit}>
             {errors.message && (
                 <div className="alert alert-danger" role="alert">{errors.message}</div>
               )}
@@ -55,6 +57,8 @@ class UserSignIn extends Component {
                     name="email"
                     required
                     onChange={this.handleChange}
+                    className="form-control"
+
                 />
                 <input
                     id="password"
@@ -63,9 +67,10 @@ class UserSignIn extends Component {
                     name="password"
                     required
                     onChange={this.handleChange}
+                    className="form-control"
                 />
                 <br />
-                <button className="form-submit form-submit-new">
+                <button className="form-submit form-submit-new form-control">
                     Let's go!
             </button>
             </form>
