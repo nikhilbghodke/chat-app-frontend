@@ -77,7 +77,7 @@ function TextMessage(props) {
                             src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${getCoords(
                                 props.messageObject.content
                             )},11,0/400x200@2x?access_token=pk.eyJ1Ijoic2F0dmlrZGFuZGFsZSIsImEiOiJja2JpMmJkdGQwYjZhMnRwamlmYmhmZDQ5In0.xEAG7PvsDEt0lM4PCUQ_NA&logo=false`}
-                            alt="location-image"
+                            alt="location"
                             className="static-map"
                         ></img>
                     </div>

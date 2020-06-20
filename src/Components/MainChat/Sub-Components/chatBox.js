@@ -41,9 +41,9 @@ class ChatBox extends React.Component {
     }
 
 
-    handleNewMessageChange = (event) => {
+    handleNewMessageChange = (value) => {
         this.setState({
-            message: event.target.value
+            message: value
         })
     }
 
