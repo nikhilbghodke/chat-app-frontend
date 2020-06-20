@@ -1,6 +1,7 @@
 {
   "name": "react-lap",
   "version": "0.1.0",
+  "homepage": "./",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.10.2",
@@ -29,7 +30,7 @@
     "socket.io-client": "^2.3.0"
   },
   "scripts": {
-    "start": "set PORT=8080 && react-scripts start",
+    "start": "set PORT=8080 && http-server build",
     "build": "set PORT=8080 && react-scripts build && npm start",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
