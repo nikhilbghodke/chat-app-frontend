@@ -6,9 +6,6 @@ import { logout } from '../../store/actions/auth'
 import { withRouter } from 'react-router-dom';
 
 class Header extends Component{
-    constructor(props) {
-        super(props);
-    }
 
     handlelogout = e => {
         e.preventDefault();
@@ -28,7 +25,7 @@ class Header extends Component{
                     </div>
                     <div className="spacer"></div>
                     <div className="user-section">
-                        <button type="button" class="btn btn-link" data-toggle="tooltip" data-placement="bottom" title="Logout" onClick={this.handlelogout}>
+                        <button type="button" className="btn btn-link" data-toggle="tooltip" data-placement="bottom" title="Logout" onClick={this.handlelogout}>
                             {this.props.currentUser.username}
                         </button>
                     </div>

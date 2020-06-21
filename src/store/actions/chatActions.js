@@ -7,7 +7,10 @@ import {
     DIRECTS_LOADING_DONE,
     INIT_ROOM,
     MEMBERS,
-    REPORT_MESSAGE
+    REPORT_MESSAGE,
+    GET_SOME_CHANNEL_MESSAGES,
+    PARTIAL_LOADING_STARTED,
+    PARTIAL_LOADING_DONE
 } from '../actionTypes';
 import { serverBaseURL, apiCall, setTokenHeader } from '../../services/api'
 import { addError, removeError } from "./error";
@@ -80,6 +83,26 @@ export function reportedMessage(id, convoType, convoName) {
     }
 }
 
+export function setSomeChannelMessages(channelName, newMessages) {
+    return {
+        type: GET_SOME_CHANNEL_MESSAGES,
+        channelName,
+        newMessages
+    }
+}
+
+export function partialLoadingStart() {
+    return {
+        type: PARTIAL_LOADING_STARTED
+    }
+}
+
+export function partialLoadingDone() {
+    return {
+        type: PARTIAL_LOADING_DONE
+    }
+}
+
 /* *************************** */
 
 
@@ -89,57 +112,75 @@ export function setAuthorizationToken(token) {
 
 // API functions:
 
-export function getAllChannelMessages(roomName) {
+export function getAllChannelMessages(roomName, numberOfMessages) {
     return dispatch => {
-        return new Promise((resolve, reject) => {
-            return apiCall("GET", serverBaseURL + `/allMessages/${roomName}`)
-                .then((channels) => {
-                    console.log(channels)
-                    let listOfChannels = [];
-                    for (var channel in channels) {
-                        let channelObject = {
-                            name: channel,
-                            messages: channels[channel].messages,
-                            description: channels[channel].description
-                        }
-                        listOfChannels.push(channelObject)
-                    }
-                    dispatch(initChannel(listOfChannels))
-                    dispatch(chatLoadingCompleted())
-                    resolve();
-                })
-                .catch(error => {
-                  
-                    dispatch(addError(error.message));
-                    reject();
-                })
+        return new Promise(async (resolve, reject) => {
+            try {
+                const channels = await apiCall("GET", serverBaseURL + `/allMessages/${roomName}/?limit=${numberOfMessages}&skip=0`);
+                console.log(channels);
+                let listOfChannels = [];
+                for (var channel in channels) {
+                    let channelObject = {
+                        name: channel,
+                        messages: channels[channel].messages,
+                        description: channels[channel].description
+                    };
+                    listOfChannels.push(channelObject);
+                }
+                dispatch(initChannel(listOfChannels));
+                dispatch(chatLoadingCompleted());
+                resolve();
+            }
+            catch (error) {
+                dispatch(addError(error.message));
+                reject();
+            }
+        })
+    }
+}
+
+export function getSomeChannelMessages(messageData) {
+    let { roomName, channelName, limit, skip } = messageData
+    return dispatch => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                dispatch(partialLoadingStart())
+                const messages = await apiCall("GET", serverBaseURL + `/allMessages/${roomName}/${channelName}?limit=${limit}&skip=${skip}`);
+                console.log(messages);
+                dispatch(setSomeChannelMessages(channelName, messages))
+                dispatch(partialLoadingDone())
+                resolve();
+            }
+            catch (error) {
+                dispatch(addError(error.message));
+                reject();
+            }
         })
     }
 }
 
 export function getAllDirectMessages(roomName) {
     return dispatch => {
-        return new Promise((resolve, reject) => {
-            return apiCall("GET", serverBaseURL + `/allDirectMessages/${roomName}`)
-                .then((userConversations) => {
-                    console.log(userConversations)
-                    let listOfUsers = [];
-                    for (var user in userConversations) {
-                        let userObject = {
-                            name: user,
-                            messages: userConversations[user]
-                        }
-                        listOfUsers.push(userObject)
-                    }
-                    dispatch(initUserConvo(listOfUsers))
-                    dispatch(directMessagesLoadingCompleted())
-                    resolve();
-                })
-                .catch(error => {
-                  
-                    dispatch(addError(error.message));
-                    reject();
-                })
+        return new Promise(async (resolve, reject) => {
+            try {
+                const userConversations = await apiCall("GET", serverBaseURL + `/allDirectMessages/${roomName}`);
+                console.log(userConversations);
+                let listOfUsers = [];
+                for (var user in userConversations) {
+                    let userObject = {
+                        name: user,
+                        messages: userConversations[user]
+                    };
+                    listOfUsers.push(userObject);
+                }
+                dispatch(initUserConvo(listOfUsers));
+                dispatch(directMessagesLoadingCompleted());
+                resolve();
+            }
+            catch (error) {
+                dispatch(addError(error.message));
+                reject();
+            }
         })
     }
 }
@@ -179,7 +220,7 @@ export function downloadFile(fileAddress, callback) {
                 resolve();
             }
             catch (error) {
-                
+
                 dispatch(addError(error.message));
                 reject();
             }
@@ -189,18 +230,17 @@ export function downloadFile(fileAddress, callback) {
 
 export function getMembers(roomName) {
     return dispatch => {
-        return new Promise((resolve, reject) => {
-            return apiCall("get", `${serverBaseURL}/rooms/${roomName}/members`, null)
-                .then((members) => {
-                    dispatch(roomMembers(members))
-                    dispatch(removeError())
-                    resolve();
-                })
-                .catch(error => {
-                  
-                    dispatch(addError(error.message));
-                    reject();
-                })
+        return new Promise(async (resolve, reject) => {
+            try {
+                const members = await apiCall("get", `${serverBaseURL}/rooms/${roomName}/members`, null);
+                dispatch(roomMembers(members));
+                dispatch(removeError());
+                resolve();
+            }
+            catch (error) {
+                dispatch(addError(error.message));
+                reject();
+            }
         })
     }
 }

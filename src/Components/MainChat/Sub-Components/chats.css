@@ -79,6 +79,23 @@
 
 /* ***********CHAT-BOX*********** */
 
+.pagination {
+  width: 100%;
+  display: flex;
+}
+
+.pagination-button {
+  margin: 1rem auto;
+  border: none;
+  padding: 0.3rem 0.5rem;
+  border-radius: 5px;
+  background-color: #c6e6ec;
+}
+
+.pagination-spinner {
+  margin: 1rem auto;
+}
+
 .chat-area-border {
   border: 1px solid black;
   /* border-radius: 14px; */

@@ -190,6 +190,8 @@ class ChatBox extends React.Component {
                         messageList={conversation.messages} 
                         reportMessageFromChat={this.reportMessageFromChat}
                         conversationType={this.props.currentConversation[0]}
+                        roomName={this.props.roomName}
+                        conversationName={title}
                     />
                 </div>
                

@@ -9,7 +9,14 @@ import { connect } from 'react-redux'
 import LoadingOverlay from 'react-loading-overlay';
 import { withRouter } from 'react-router-dom'
 
-import { changeCoversation, getAllChannelMessages, addNewMessage, getAllDirectMessages, directMessagesLoadingCompleted, chatLoadingCompleted } from '../../../store/actions/chatActions';
+import { 
+    changeCoversation, 
+    getAllChannelMessages, 
+    addNewMessage, 
+    getAllDirectMessages, 
+    directMessagesLoadingCompleted, 
+    chatLoadingCompleted,
+} from '../../../store/actions/chatActions';
 import { apiCall, serverBaseURL } from '../../../services/api'
 import { removeError } from "../../../store/actions/error";
 import ChatBox from './chatBox';
@@ -44,13 +51,13 @@ class Chats extends React.Component {
             return
         }
 
-        // Retireve all channel messages from Database
-        this.props.getAllChannelMessages(this.room)
+        // Retireve 10 channel messages from Database
+        this.props.getAllChannelMessages(this.room, 10)
 
-        // Retrieve all direct messages
+        // Retrieve 10 direct messages
         console.log("DIRECT MESSAGES ROOM")
         console.log(this.room)
-        this.props.getAllDirectMessages(this.room)
+        this.props.getAllDirectMessages(this.room, 10)
 
 
         // This will initialize the socket
@@ -250,10 +257,10 @@ const mapDispatchToProps = (dispatch) => {
     return {
         addNewMessage: (message, typeOfConversation, conversationName) => { dispatch(addNewMessage(message, typeOfConversation, conversationName)) },
         changeConversation: (typeOfConversation, indexOfConversation) => { dispatch(changeCoversation(typeOfConversation, indexOfConversation)) },
-        getAllChannelMessages: (roomName, token) => { dispatch(getAllChannelMessages(roomName, token)) },
-        getAllDirectMessages: (roomName, token) => { dispatch(getAllDirectMessages(roomName, token)) },
+        getAllChannelMessages: (roomName, numberOfMessages) => { dispatch(getAllChannelMessages(roomName, numberOfMessages)) },
+        getAllDirectMessages: (roomName, numberOfMessages) => { dispatch(getAllDirectMessages(roomName, numberOfMessages)) },
         directMessagesLoadingCompleted: () => { dispatch(directMessagesLoadingCompleted()) },
-        chatLoadingCompleted: () => { dispatch(chatLoadingCompleted()) }
+        chatLoadingCompleted: () => { dispatch(chatLoadingCompleted()) },
     }
 }
 

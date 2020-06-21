@@ -28,7 +28,10 @@ import {
     ROOM_UPDATE,
     // ROOM_DELETE,
     CHANNEL_CREATE,
-    REPORT_MESSAGE
+    REPORT_MESSAGE,
+    PARTIAL_LOADING_STARTED,
+    PARTIAL_LOADING_DONE,
+    GET_SOME_CHANNEL_MESSAGES
 } from "../actionTypes";
 
 const initialState = {
@@ -38,7 +41,8 @@ const initialState = {
     users: [],
     selectedConversation: ["channels", 0],
     isChatLoaded: false,
-    isDirectMessagesLoaded: false
+    isDirectMessagesLoaded: false,
+    isPartialLoading: false
 }
 
 const chatReducer = (state = initialState, action) => {
@@ -52,7 +56,7 @@ const chatReducer = (state = initialState, action) => {
                 const messageLength = oldMessages.length;
                 if (action.message.id)
                     for (var i = messageLength - 10; i < messageLength; i++) {
-                        if (oldMessages[i]._id === action.message._id){
+                        if (oldMessages[i]._id === action.message._id) {
                             console.log("REPEATED")
                             return state;
                         }
@@ -177,6 +181,30 @@ const chatReducer = (state = initialState, action) => {
                 channels: channelsList
             }
 
+        case GET_SOME_CHANNEL_MESSAGES:
+            console.log(action) 
+            let oldChannels = [...state.channels];
+            let oldChannelIndex = oldChannels.findIndex(channel => channel.name === action.channelName);
+            console.log(oldChannelIndex)
+            let messageList = [...oldChannels[oldChannelIndex].messages]
+            console.log(messageList)
+            oldChannels[oldChannelIndex] = { ...oldChannels[oldChannelIndex], messages: [...action.newMessages, ...messageList] }
+            return {
+                ...state,
+                channels: oldChannels
+            }
+
+        case PARTIAL_LOADING_STARTED:
+            return {
+                ...state,
+                isPartialLoading: true
+            }
+
+        case PARTIAL_LOADING_DONE:
+            return {
+                ...state,
+                isPartialLoading: false
+            }
 
         default:
             return state;

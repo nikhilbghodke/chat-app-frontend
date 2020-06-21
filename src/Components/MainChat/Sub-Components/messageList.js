@@ -4,10 +4,13 @@ import Prism from 'prismjs';
 import Dropdown from 'react-bootstrap/Dropdown'
 import { ButtonGroup } from 'react-bootstrap';
 import GetAppRoundedIcon from '@material-ui/icons/GetAppRounded';
+import Spinner from 'react-bootstrap/Spinner'
 import { connect } from 'react-redux'
-import { downloadFile } from '../../../store/actions/chatActions';
-import "./messageList.css"
+import RotateLeftIcon from '@material-ui/icons/RotateLeft';
+
+import { downloadFile, getSomeChannelMessages } from '../../../store/actions/chatActions';
 import { serverBaseURL } from '../../../services/api';
+import "./messageList.css"
 
 
 function TextMessage(props) {
@@ -107,15 +110,41 @@ class MessageList extends React.Component {
         this.refs.messageScrollbar.scrollTop(height);
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps, prevState) {
         Prism.highlightAll();
-        const height = this.refs.messageScrollbar.getScrollHeight();
-        this.refs.messageScrollbar.scrollTop(height);
+        console.log(prevProps)
+        if (!this.props.isPartialLoading) {
+            const height = this.refs.messageScrollbar.getScrollHeight();
+            this.refs.messageScrollbar.scrollTop(height);
+        }
     }
+
+    messageToRequest = 10;
 
     render() {
         return (
             <Scrollbars autoHide ref="messageScrollbar">
+                <div className="pagination">
+                    {this.props.isPartialLoading
+                        ?
+                        <Spinner animation="border" variant="secondary" className="pagination-spinner" />
+                        :
+                        <button
+                            className="pagination-button"
+                            onClick={() => {
+                                console.log("HEY");
+                                let messageData = { 
+                                    roomName: this.props.roomName, 
+                                    channelName: this.props.conversationName, 
+                                    limit: this.messageToRequest, 
+                                    skip: this.props.messageList.length }
+                                console.log(messageData)
+                                this.props.getSomeChannelMessages(messageData);
+                            }
+                            }
+                        ><RotateLeftIcon /></button>
+                    }
+                </div>
                 {this.props.messageList.map((message, index) => {
                     let date = new Date(message.createdAt);
                     const time = date.toTimeString().split(" ")[0];
@@ -149,10 +178,17 @@ class MessageList extends React.Component {
     }
 }
 
-const MapDispatchToProps = (dispatch) => {
+const mapStateToProps = (state) => {
     return {
-        downloadFile: (fileAddress, callback) => { dispatch(downloadFile(fileAddress, callback)) }
+        isPartialLoading: state.chatReducer.isPartialLoading,
     }
 }
 
-export default connect(null, MapDispatchToProps)(MessageList);
+const mapDispatchToProps = (dispatch) => {
+    return {
+        downloadFile: (fileAddress, callback) => { dispatch(downloadFile(fileAddress, callback)) },
+        getSomeChannelMessages: (messageData) => { dispatch(getSomeChannelMessages(messageData)) }
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MessageList);

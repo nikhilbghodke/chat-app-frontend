@@ -232,15 +232,10 @@ class RoomPage extends React.Component {
   render() {
     // console.log(this.props)
 
-    if (this.props.allRooms)
-      this.props.allRooms.forEach((roomObject) => {
-        if (!this.joinedRoomNames.includes(roomObject.title))
-          this.joinedRoomNames.push(roomObject.title)
-      })
 
-      this.props.history.listen(() => {
-        removeError();
-      });
+    this.props.history.listen(() => {
+      removeError();
+    });
     if (this.props.roomError && this.props.roomError.length !== 0) {
       return (
         <Alert onClose={() => this.props.setRoomError("")} dismissible variant="danger">
@@ -272,9 +267,9 @@ class RoomPage extends React.Component {
           </li>
         </ul>
         <div className="roompage">
-        {this.props.error.message && (
-                <div className="alert alert-danger" role="alert">{this.props.error.message}</div>
-              )}
+          {this.props.error.message && (
+            <div className="alert alert-danger" role="alert">{this.props.error.message}</div>
+          )}
           <div className="form2">
 
             <div className="form">
@@ -329,7 +324,7 @@ const mapStateToProps = (state) => {
     allRooms: state.currentUser.allRooms,
     allPublicRooms: state.currentUser.allPublicRooms,
     joiningNewRoom: state.currentUser.joinPublicRoom,
-    error : state.errors,
+    error: state.errors,
     username: state.currentUser.user.username,
     roomError: state.currentUser.roomError,
   }
