@@ -152,7 +152,7 @@ class RoomPage extends React.Component {
             className="list-group-item list-group-item-action rounded border border-dark"
             onClick={() => {
               this.props.joinPublicRoom(roomObject.title)
-              
+
             }
             }
           >
@@ -294,14 +294,14 @@ class RoomPage extends React.Component {
               <br />
               <b> <p className="form-bottom-text">
                 Don't have a room yet?
-               <a
-               href="#"
+               <p
+                  className="create-room"
                   onClick={() => {
                     this.handleShow();
                     console.log("BUTTON CLICK")
                   }}
                   className="new-room"
-                > Create One!</a>
+                > Create One!</p>
               </p></b>
             </div>
           </div>

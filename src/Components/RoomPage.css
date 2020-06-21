@@ -36,10 +36,12 @@
 #roomlistdisp{
   display: flex;
   justify-content: space-between;
+  margin: 0.2rem;
 }
 #proomlistdisp{
   display: flex;
   justify-content: space-between;
+  margin: 0.2rem;
 }
 .form {
   text-align: center;
@@ -89,6 +91,10 @@ i{
   border: none;
 }
 
+
+.create-room:hover {
+  cursor: pointer;
+}
 
 @media (max-width: 700px) {
   .nav{
