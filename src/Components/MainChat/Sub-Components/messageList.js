@@ -33,14 +33,14 @@ function TextMessage(props) {
             <Dropdown.Toggle split variant="success" id="dropdown-split-basic" size="sm" />
 
             <Dropdown.Menu>
-                <Dropdown.Item onClick={() => { console.log("Report!") }}>Report</Dropdown.Item>
+                <Dropdown.Item onClick={() => { console.log("Report!"); console.log(props.messageObject.id); props.reportOnClick(props.messageObject.id) }}>Report</Dropdown.Item>
             </Dropdown.Menu>
         </Dropdown>
     )
 
     const fileDownloaded = (file, fileName) => {
-        console.log("HEY");
-        console.log(file);
+        // console.log("HEY");
+        // console.log(file);
         fileDownload(file, fileName);
     }
 
@@ -103,6 +103,12 @@ function TextMessage(props) {
 }
 
 class MessageList extends React.Component {
+    reportOnClick = (Mid) => {
+        console.log("REPORT CLICKED")
+        console.log(Mid)
+        this.props.reportMessageFromChat(Mid);
+    }
+
     componentDidMount() {
         Prism.highlightAll();
         const height = this.refs.messageScrollbar.getScrollHeight();
@@ -122,12 +128,16 @@ class MessageList extends React.Component {
                 {this.props.messageList.map((message, index) => {
                     let date = new Date(message.createdAt);
                     const time = date.toTimeString().split(" ")[0];
+                    console.log(message)
                     let messageObject = {
                         content: message.content,
                         owner: "unknown",
                         type: message.type,
                         time: time,
+                        id: message._id,
+                        isReported: message.isReported
                     };
+                    console.log(messageObject)
                     if (message.owner) {
                         if (message.owner.username)
                             messageObject.owner = message.owner.username;
@@ -140,6 +150,7 @@ class MessageList extends React.Component {
                             messageObject={messageObject}
                             currentUser={this.props.currentUser}
                             downloadFile={this.props.downloadFile}
+                            reportOnClick={this.reportOnClick}
                         />
                     );
                 })}

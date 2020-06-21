@@ -28,7 +28,8 @@ import {
     CHANNEL_DELETE,
     ROOM_UPDATE,
     ROOM_DELETE,
-    CHANNEL_CREATE
+    CHANNEL_CREATE,
+    REPORT_MESSAGE
 } from "../actionTypes";
 
 const initialState = {
@@ -142,13 +143,44 @@ const chatReducer = (state = initialState, action) => {
         case CHANNEL_CREATE:
             return {
                 ...state,
-                channels : [...state.channels,action.chan]
+                channels: [...state.channels, action.chan]
             }
-            case ROOM_UPDATE:
+        case ROOM_UPDATE:
+            return {
+                ...state,
+                roomName: action.room
+            }
+
+        case REPORT_MESSAGE:
+            console.log(action)
+            // Find the message using id from the convo type
+            // Change the isReported: to true
+            if (action.convoType === "channels") {
+                console.log('channels')
+                let channelIndex = state.channels.findIndex((channel) => channel.name === action.convoName)
+                console.log(channelIndex)
+                let tempChannelList = state.channels;
+                console.log(tempChannelList)
+                let messageIndex = tempChannelList[channelIndex].messages.findIndex((message) => message._id === action.id)
+                console.log(messageIndex)
+                // isReported: true
+                tempChannelList[channelIndex].messages[messageIndex].isReported = true;
                 return {
                     ...state,
-                    roomName : action.room
+                    channels: tempChannelList
                 }
+            }
+            let userIndex = state.users.findIndex((user) => user.name === action.convoName)
+            let tempUsersList = state.users;
+            let messageIndex = tempUsersList[userIndex].messages.findIndex((message) => message._id === action.id)
+            // isReported: true
+            tempUsersList[userIndex].messages[messageIndex].isReported = true;
+            return {
+                ...state,
+                users: tempUsersList
+            }
+
+
         default:
             return state;
     }
