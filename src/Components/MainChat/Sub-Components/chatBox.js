@@ -148,7 +148,7 @@ class ChatBox extends React.Component {
     reportMessageFromChat = (Mid) => {
         console.log("REPORT receive to chat box")
         console.log(Mid, this.props.currentConversation[0], this.props.currentConversation[1].name)
-        let mObject = {id: Mid, convoType: this.props.currentConversation[0], convoName: this.props.currentConversation[1].name}
+        let mObject = {id: Mid, convoType: this.props.currentConversation[0], convoName: this.props.currentConversation[1].name, roomName: this.props.roomName}
         this.props.reportMes(mObject)
         console.log(mObject)
     }
@@ -157,18 +157,15 @@ class ChatBox extends React.Component {
         // console.log(this.props)
         let title = "";
         let description = null;
-        // let isPersonal = "";
         let conversation = null;
 
         if (this.props.currentConversation[0] === "channels") {
             conversation = this.props.currentConversation[1];
             title = conversation.name;
             description = conversation.description;
-            // isPersonal = false;
         } else {
             conversation = this.props.currentConversation[1];
             title = conversation.name;
-            // isPersonal = true;
         }
 
         // console.log(this.props)
@@ -188,6 +185,7 @@ class ChatBox extends React.Component {
                         currentUser={this.props.currentUser} 
                         messageList={conversation.messages} 
                         reportMessageFromChat={this.reportMessageFromChat}
+                        conversationType={this.props.currentConversation[0]}
                     />
                 </div>
                 <div className="new-message">

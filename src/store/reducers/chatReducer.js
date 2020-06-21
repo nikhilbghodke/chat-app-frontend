@@ -18,7 +18,6 @@
 */
 import {
     NEW_MESSAGE,
-    CHANGE_SELECTED_CHANNEL,
     CHANGE_CONVERSATION, INIT_CHANNELS,
     CHAT_LOADING_DONE,
     INIT_USERS_CONVO,
@@ -27,10 +26,11 @@ import {
     CHANNEL_UPDATE,
     CHANNEL_DELETE,
     ROOM_UPDATE,
-    ROOM_DELETE,
+    // ROOM_DELETE,
     CHANNEL_CREATE,
     REPORT_MESSAGE
 } from "../actionTypes";
+import { reportedMessage } from "../actions/chatActions";
 
 const initialState = {
     currentUser: "",
@@ -133,7 +133,7 @@ const chatReducer = (state = initialState, action) => {
             let chanList = state.channels
             let listchannel = () => {
                 return chanList.filter((chann) => {
-                    return action.name != chann.name
+                    return action.name !== chann.name
                 })
             }
             return {
@@ -155,29 +155,39 @@ const chatReducer = (state = initialState, action) => {
             console.log(action)
             // Find the message using id from the convo type
             // Change the isReported: to true
-            if (action.convoType === "channels") {
-                console.log('channels')
-                let channelIndex = state.channels.findIndex((channel) => channel.name === action.convoName)
-                console.log(channelIndex)
-                let tempChannelList = state.channels;
-                console.log(tempChannelList)
-                let messageIndex = tempChannelList[channelIndex].messages.findIndex((message) => message._id === action.id)
-                console.log(messageIndex)
-                // isReported: true
-                tempChannelList[channelIndex].messages[messageIndex].isReported = true;
-                return {
-                    ...state,
-                    channels: tempChannelList
-                }
-            }
-            let userIndex = state.users.findIndex((user) => user.name === action.convoName)
-            let tempUsersList = state.users;
-            let messageIndex = tempUsersList[userIndex].messages.findIndex((message) => message._id === action.id)
+            console.log('channels')
+            // let tempChannelList = [...state.channels];
+            // console.log(tempChannelList)
+            // let channelIndexReport = tempChannelList.findIndex((channel) => channel.name === action.convoName)
+            // console.log(channelIndexReport)
+            // let messageIndex = tempChannelList[channelIndexReport].messages.findIndex((message) => message._id === action.id)
+            // console.log(messageIndex)
             // isReported: true
-            tempUsersList[userIndex].messages[messageIndex].isReported = true;
+            // let tempMessage = tempChannelList[channelIndexReport].messages[messageIndex]
+            // tempMessage.isReported = true;
+            // tempChannelList[channelIndexReport].messages[messageIndex] = tempMessage;
+
+
+            let channelsList = [...state.channels];
+            // Which channel
+            let reportedChannelIndex = channelsList.findIndex(channel => channel.name === action.convoName)
+            console.log(reportedChannelIndex)
+            let oldMessagesList = [...channelsList[reportedChannelIndex].messages];
+            // Which message in this channel
+            let reportedMessageIndex = oldMessagesList.findIndex(messageObject => messageObject._id === action.id)
+            console.log(reportedMessageIndex)
+            // Get this message Object
+            let oldMessageObject = {...oldMessagesList[reportedMessageIndex]};
+            // set isReported: true
+            oldMessageObject.isReported = true
+            //Replace the old message object with new at the same index
+            oldMessagesList[reportedMessageIndex] = oldMessageObject;
+            // Replace the message list in the channels list
+            channelsList[reportedChannelIndex].messages = oldMessagesList
+
             return {
                 ...state,
-                users: tempUsersList
+                channels: channelsList
             }
 
 

@@ -208,6 +208,7 @@ class Chats extends React.Component {
                     {this.props.isChatLoaded
                         ?
                         <ChatBox
+                            roomName={this.props.roomName}
                             currentConversation={
                                 // ["type", conversation]
                                 this.props.selectedConversation[0] === "channels"

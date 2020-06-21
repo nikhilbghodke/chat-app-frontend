@@ -63,7 +63,7 @@ function TextMessage(props) {
                 <div className="message-user" >
                     <div className="user-name">{props.messageObject.owner}</div>
                     <div className="spacer"></div>
-                    {hover ? <div className="options" ><DropdownElement /></div> : null}
+                    {hover && !props.messageObject.isReported && props.conversationType === "channels" ? <div className="options" ><DropdownElement /></div> : null}
                 </div>
 
                 {props.messageObject.type === "text" ? (
@@ -130,9 +130,9 @@ class MessageList extends React.Component {
                     const time = date.toTimeString().split(" ")[0];
                     console.log(message)
                     let messageObject = {
-                        content: message.content,
+                        content: message.isReported ? "This message was reported" : message.content,
                         owner: "unknown",
-                        type: message.type,
+                        type: message.isReported ? "text" : message.type,
                         time: time,
                         id: message._id,
                         isReported: message.isReported
@@ -146,6 +146,7 @@ class MessageList extends React.Component {
                     Prism.highlightAll();
                     return (
                         <TextMessage
+                            conversationType={this.props.conversationType}
                             keyValue={index}
                             messageObject={messageObject}
                             currentUser={this.props.currentUser}

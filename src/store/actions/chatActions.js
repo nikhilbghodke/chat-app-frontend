@@ -227,11 +227,11 @@ export function removeUser(title, name, callback) {
 
 export function reportMes(mObject) {
     console.log(mObject)
-    let { id, convoType, convoName } = mObject;
+    let { id, convoType, convoName, roomName } = mObject;
     return dispatch => {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
-                // API CALL FOR REPORT MESSAGE HERE
+                await apiCall('post', `${serverBaseURL}/room/${roomName}/report/${id}`)
                 // apiCall()
                 console.log("REPORT API HIT")
                 console.log(id, convoType, convoName)
