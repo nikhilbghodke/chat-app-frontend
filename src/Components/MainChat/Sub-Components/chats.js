@@ -9,9 +9,9 @@ import { connect } from 'react-redux'
 import LoadingOverlay from 'react-loading-overlay';
 import { withRouter } from 'react-router-dom'
 
-import { changeCoversation, getAllChannelMessages, addNewMessage, getAllDirectMessages, directMessagesLoadingCompleted } from '../../../store/actions/chatActions';
+import { changeCoversation, getAllChannelMessages, addNewMessage, getAllDirectMessages, directMessagesLoadingCompleted, chatLoadingCompleted } from '../../../store/actions/chatActions';
 import { apiCall, serverBaseURL } from '../../../services/api'
-
+import { removeError } from "../../../store/actions/error";
 import ChatBox from './chatBox';
 
 import './chats.css';
@@ -52,6 +52,7 @@ class Chats extends React.Component {
         console.log(this.room)
         this.props.getAllDirectMessages(this.room)
 
+
         // This will initialize the socket
         this.socket.emit('join', { username: this.props.username, room: this.room, token: this.token }, (error, data) => {
             if (error) {
@@ -69,8 +70,8 @@ class Chats extends React.Component {
 
         // New message event listener
         this.socket.on('recieve', (packet) => {
-            console.log(packet) 
-            let { username, msg, room, channel, to, time, type, isReported } = packet;
+            console.log(packet)
+            let { username, msg, room, channel, to, time, type, isReported, id } = packet;
             console.log({ username, msg, room, channel, time })
             if (room === this.room && username !== this.props.currentUser) {
                 const messageObject = {
@@ -79,6 +80,7 @@ class Chats extends React.Component {
                     createdAt: time,
                     type: type,
                     isReported,
+                    _id: id
                 }
                 console.log(messageObject)
                 if (channel)    // Message is from a channel
@@ -164,14 +166,18 @@ class Chats extends React.Component {
     }
 
     render() {
-        // console.log(this.props)
-        // return (<h1>HELLO</h1>)
+        this.props.history.listen(() => {
+            removeError();
+          });
         return (
             <div className="main-area chat-area">
                 <div className="chat-list">
                     <div className="chat-list-subtitle">
                         <p>Your channels</p>
                     </div>
+                    {this.props.error.message && (
+                alert(this.props.error.message)
+              )}
                     <div className="channel-list">
                         <Scrollbars autoHide>
                             <div className="channel-list-header" onClick={() => this.setState({ channelCollapse: !this.state.channelCollapse })}>
@@ -236,6 +242,7 @@ const mapStateToProps = (state) => {
         selectedConversation: state.chatReducer.selectedConversation,
         isChatLoaded: state.chatReducer.isChatLoaded,
         isDirectMessagesLoaded: state.chatReducer.isDirectMessagesLoaded,
+        error:state.errors
     }
 }
 
@@ -246,7 +253,8 @@ const mapDispatchToProps = (dispatch) => {
         getAllChannelMessages: (roomName, token) => { dispatch(getAllChannelMessages(roomName, token)) },
         getAllDirectMessages: (roomName, token) => { dispatch(getAllDirectMessages(roomName, token)) },
         directMessagesLoadingCompleted: () => { dispatch(directMessagesLoadingCompleted()) },
+        chatLoadingCompleted: () => { dispatch(chatLoadingCompleted()) }
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Chats));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Chats));

@@ -17,6 +17,7 @@ import {
 } from '../store/actions/auth';
 import { initRoom } from '../store/actions/chatActions'
 import { logout } from '../store/actions/auth'
+import { removeError } from "../store/actions/error";
 import { setTokenHeader } from '../services/api';
 
 import Icon from '../Assests/Images/icon-logo-2.png'
@@ -91,8 +92,9 @@ class RoomPage extends React.Component {
     }
   }
 
-  joinedRoomNames = [];
+
   componentDidMount() {
+    console.log("ROOM MOUNTED")
     if (!localStorage.jwtToken) {
       this.props.history.push("/authenticate/signin")
       return;
@@ -123,7 +125,7 @@ class RoomPage extends React.Component {
           onClick={() => {
             // console.log(roomObject)
             this.props.initRoom(roomObject.title)
-            this.props.history.push("/chat")
+            this.props.history.push("/chat/" + roomObject.title)
           }
           }
         >
@@ -143,9 +145,9 @@ class RoomPage extends React.Component {
   };
 
   publicRoomList = () => {
-    if (this.props.allPublicRooms) {
+    if (this.props.allPublicRooms && this.props.allRooms) {
       return this.props.allPublicRooms.map((roomObject, index) => {
-        if (!this.joinedRoomNames.includes(roomObject.title))
+        if (this.props.allRooms.findIndex((joinedRoom) => joinedRoom.title === roomObject.title) === -1)
           return <button id="proomlistdisp"
             key={index}
             type="button"
@@ -160,6 +162,7 @@ class RoomPage extends React.Component {
             {roomObject.private && <i>Private</i>}
             {!roomObject.private && <i>Public</i>}
           </button>
+        return null;
       })
     }
   }
@@ -235,6 +238,9 @@ class RoomPage extends React.Component {
           this.joinedRoomNames.push(roomObject.title)
       })
 
+      this.props.history.listen(() => {
+        removeError();
+      });
     if (this.props.roomError && this.props.roomError.length !== 0) {
       return (
         <Alert onClose={() => this.props.setRoomError("")} dismissible variant="danger">
@@ -266,7 +272,9 @@ class RoomPage extends React.Component {
           </li>
         </ul>
         <div className="roompage">
-
+        {this.props.error.message && (
+                <div className="alert alert-danger" role="alert">{this.props.error.message}</div>
+              )}
           <div className="form2">
 
             <div className="form">
@@ -294,14 +302,14 @@ class RoomPage extends React.Component {
               <br />
               <b> <p className="form-bottom-text">
                 Don't have a room yet?
-               <p
+               <Link
                   className="create-room"
                   onClick={() => {
                     this.handleShow();
                     console.log("BUTTON CLICK")
                   }}
                   className="new-room"
-                > Create One!</p>
+                > Create One!</Link>
               </p></b>
             </div>
           </div>
@@ -321,8 +329,9 @@ const mapStateToProps = (state) => {
     allRooms: state.currentUser.allRooms,
     allPublicRooms: state.currentUser.allPublicRooms,
     joiningNewRoom: state.currentUser.joinPublicRoom,
+    error : state.errors,
+    username: state.currentUser.user.username,
     roomError: state.currentUser.roomError,
-    username: state.currentUser.user.username
   }
 }
 
