@@ -1,0 +1,16 @@
+#leftPanel{
+  background-color:#0079ac;
+  color:#fff;
+  text-align: center;
+}
+
+#rightPanel{
+  min-height:415px;
+  text-align: right;
+}
+
+img{
+  height: 20px;
+  width: 200px;
+}
+
