@@ -91,9 +91,16 @@ const chatReducer = (state = initialState, action) => {
 
         case INIT_CHANNELS:
             console.log(action.channels)
+            // For every channel reverse the messages first
+            let incomingChannelsArray = []
+            action.channels.forEach(channelObject => {
+                let channelMessages = channelObject.messages;
+                channelObject.message = channelMessages.reverse();
+                incomingChannelsArray = [...incomingChannelsArray, channelObject]
+            })
             return {
                 ...state,
-                channels: action.channels
+                channels: incomingChannelsArray
             }
 
         case INIT_USERS_CONVO:
@@ -182,7 +189,7 @@ const chatReducer = (state = initialState, action) => {
             }
 
         case GET_SOME_CHANNEL_MESSAGES:
-            console.log(action) 
+            console.log(action)
             let oldChannels = [...state.channels];
             let oldChannelIndex = oldChannels.findIndex(channel => channel.name === action.channelName);
             console.log(oldChannelIndex)
