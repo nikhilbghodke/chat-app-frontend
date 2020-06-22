@@ -12,7 +12,7 @@ import { useState } from "react";
 
 function CodeSnippetModal(props) {
   const [lang, setLang] = useState("");
-  const languages = ["Java", "JavaScript", "C/C++", "Python", "C#", "CSS"];
+  const languages = ["Java", "JavaScript", "C++", "Python", "C#", "CSS", "C",];
   const [code, setCode] = useState("");
 
   return (

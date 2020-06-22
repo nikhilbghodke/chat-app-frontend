@@ -271,7 +271,10 @@
 .sc-htpNat{
   display: flex;
   flex-direction: column-reverse;
+  top: 0;
+  bottom: 40px;
 }
+
 
 .message-text .MuiTextField-root {
   width: 100%;
@@ -283,7 +286,13 @@
   min-height: 3rem;
 }
 
+.dropdown-menu {
+  z-index: 10;
+}
 
+.dropdown-item {
+  background-color: white;
+}
 
 .send-button {
   flex: 0.7;
